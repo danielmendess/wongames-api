@@ -690,6 +690,11 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required & Attribute.Unique;
     slug: Attribute.UID<'api::category.category', 'name'>;
+    games: Attribute.Relation<
+      'api::category.category',
+      'manyToMany',
+      'api::game.game'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -720,6 +725,11 @@ export interface ApiDeveloperDeveloper extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     slug: Attribute.UID<'api::developer.developer', 'name'>;
+    games: Attribute.Relation<
+      'api::developer.developer',
+      'manyToMany',
+      'api::game.game'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -737,6 +747,58 @@ export interface ApiDeveloperDeveloper extends Schema.CollectionType {
   };
 }
 
+export interface ApiGameGame extends Schema.CollectionType {
+  collectionName: 'games';
+  info: {
+    singularName: 'game';
+    pluralName: 'games';
+    displayName: 'game';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    slug: Attribute.UID<'api::game.game', 'name'>;
+    short_description: Attribute.Text;
+    description: Attribute.RichText;
+    price: Attribute.Decimal & Attribute.Required & Attribute.DefaultTo<0>;
+    release_date: Attribute.Date;
+    rating: Attribute.Enumeration<
+      ['BR0', 'BR10', 'BR12', 'BR14', 'BR16', 'BR18']
+    >;
+    cover: Attribute.Media;
+    gallery: Attribute.Media;
+    categories: Attribute.Relation<
+      'api::game.game',
+      'manyToMany',
+      'api::category.category'
+    >;
+    platforms: Attribute.Relation<
+      'api::game.game',
+      'manyToMany',
+      'api::platform.platform'
+    >;
+    developers: Attribute.Relation<
+      'api::game.game',
+      'manyToMany',
+      'api::developer.developer'
+    >;
+    publisher: Attribute.Relation<
+      'api::game.game',
+      'manyToOne',
+      'api::publisher.publisher'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::game.game', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPlatformPlatform extends Schema.CollectionType {
   collectionName: 'platforms';
   info: {
@@ -750,6 +812,11 @@ export interface ApiPlatformPlatform extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     slug: Attribute.UID<'api::platform.platform', 'name'>;
+    games: Attribute.Relation<
+      'api::platform.platform',
+      'manyToMany',
+      'api::game.game'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -780,6 +847,11 @@ export interface ApiPublisherPublisher extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     slug: Attribute.UID;
+    games: Attribute.Relation<
+      'api::publisher.publisher',
+      'oneToMany',
+      'api::game.game'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -815,6 +887,7 @@ declare module '@strapi/types' {
       'plugin::i18n.locale': PluginI18NLocale;
       'api::category.category': ApiCategoryCategory;
       'api::developer.developer': ApiDeveloperDeveloper;
+      'api::game.game': ApiGameGame;
       'api::platform.platform': ApiPlatformPlatform;
       'api::publisher.publisher': ApiPublisherPublisher;
     }
